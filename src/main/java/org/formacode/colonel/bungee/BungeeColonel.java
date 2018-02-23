@@ -22,21 +22,16 @@
  * SOFTWARE.
  */
 
-package org.formacode.colonel;
+package org.formacode.colonel.bungee;
 
-import org.bukkit.plugin.java.JavaPlugin;
+import net.md_5.bungee.api.plugin.Plugin;
 
-public final class Colonel
+public final class BungeeColonel
 {
-	private final JavaPlugin owningPlugin;
+	private final Plugin owningPlugin;
 
-	public Colonel(JavaPlugin owningPlugin)
+	public BungeeColonel(Plugin owningPlugin)
 	{
 		this.owningPlugin = owningPlugin;
-	}
-
-	public JavaPlugin getOwningPlugin()
-	{
-		return this.owningPlugin;
 	}
 }
