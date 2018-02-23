@@ -7,7 +7,7 @@
 	<version>1.0-SNAPSHOT</version>
 
 	<name>Colonel</name>
-	<description>Annotation based command framework for Spigot and BungeeCord based plugins to support the rapid and easy creation of commands</description>
+	<description>Annotation based command framework for Spigot and BungeeCord plugins to support the rapid and easy creation of commands</description>
 	<url>http://formacode.org</url>
 
 	<developers>
