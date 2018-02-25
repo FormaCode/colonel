@@ -66,6 +66,10 @@ public final class SpigotColonel extends Colonel<JavaPlugin> implements CommandE
 
 	private CommandMap loadCommandMap()
 	{
+		if (this.commandMap != null)
+		{
+			return this.commandMap;
+		}
 		PluginManager pluginManager = this.owningPlugin.getServer().getPluginManager();
 		if (pluginManager instanceof SimplePluginManager)
 		{
