@@ -22,24 +22,24 @@
  * SOFTWARE.
  */
 
-package org.formacode.colonel.bungee;
+package org.formacode.colonel.command;
 
-import org.formacode.colonel.Colonel;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import net.md_5.bungee.api.plugin.Plugin;
-
-public final class BungeeColonel implements Colonel<Plugin>
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface CommandHead
 {
-	private final Plugin owningPlugin;
+	String name();
 
-	public BungeeColonel(Plugin owningPlugin)
-	{
-		this.owningPlugin = owningPlugin;
-	}
+	String permission() default "";
 
-	@Override
-	public Plugin getOwningPlugin()
-	{
-		return this.owningPlugin;
-	}
+	String permissionMessage() default "";
+
+	String description() default "";
+
+	String[] aliases() default {};
 }

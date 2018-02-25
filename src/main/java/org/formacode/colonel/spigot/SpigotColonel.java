@@ -24,14 +24,73 @@
 
 package org.formacode.colonel.spigot;
 
+import org.formacode.colonel.Colonel;
+
+import java.lang.reflect.Field;
+import java.util.List;
+
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandMap;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
+import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.SimplePluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class SpigotColonel
+public final class SpigotColonel implements Colonel<JavaPlugin>, CommandExecutor, TabCompleter
 {
 	private final JavaPlugin owningPlugin;
+	private CommandMap commandMap;
 
 	public SpigotColonel(JavaPlugin owningPlugin)
 	{
 		this.owningPlugin = owningPlugin;
+		this.commandMap = this.getCommandMap();
+		if (this.commandMap == null)
+		{
+			throw new NullPointerException("commandMap");
+		}
+	}
+
+	@Override
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] arguments)
+	{
+		return false;
+	}
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] arguments)
+	{
+		return null;
+	}
+
+	@Override
+	public JavaPlugin getOwningPlugin()
+	{
+		return this.owningPlugin;
+	}
+
+	public CommandMap getCommandMap()
+	{
+		if (this.commandMap == null)
+		{
+			PluginManager pluginManager = this.owningPlugin.getServer().getPluginManager();
+			if (pluginManager instanceof SimplePluginManager)
+			{
+				SimplePluginManager simplePluginManager = (SimplePluginManager) pluginManager;
+				try
+				{
+					Field field = SimplePluginManager.class.getDeclaredField("commandMap");
+					field.setAccessible(true);
+					this.commandMap = (CommandMap) field.get(simplePluginManager);
+				}
+				catch (IllegalAccessException | NoSuchFieldException exception)
+				{
+					throw new RuntimeException("Unable to set up the commandMap", exception);
+				}
+			}
+		}
+		return this.commandMap;
 	}
 }

@@ -22,24 +22,11 @@
  * SOFTWARE.
  */
 
-package org.formacode.colonel.bungee;
+package org.formacode.colonel.command.sender;
 
-import org.formacode.colonel.Colonel;
-
-import net.md_5.bungee.api.plugin.Plugin;
-
-public final class BungeeColonel implements Colonel<Plugin>
+public enum ApplicableCommandSender
 {
-	private final Plugin owningPlugin;
-
-	public BungeeColonel(Plugin owningPlugin)
-	{
-		this.owningPlugin = owningPlugin;
-	}
-
-	@Override
-	public Plugin getOwningPlugin()
-	{
-		return this.owningPlugin;
-	}
+	CONSOLE,
+	PLAYER,
+	BOTH
 }
