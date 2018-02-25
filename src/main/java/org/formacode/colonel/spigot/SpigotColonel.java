@@ -45,7 +45,7 @@ public final class SpigotColonel extends Colonel<JavaPlugin> implements CommandE
 	public SpigotColonel(JavaPlugin owningPlugin)
 	{
 		super(owningPlugin);
-		this.commandMap = this.getCommandMap();
+		this.commandMap = this.loadCommandMap();
 		if (this.commandMap == null)
 		{
 			throw new NullPointerException("commandMap");
@@ -64,26 +64,28 @@ public final class SpigotColonel extends Colonel<JavaPlugin> implements CommandE
 		return null;
 	}
 
-	public CommandMap getCommandMap()
+	private CommandMap loadCommandMap()
 	{
-		if (this.commandMap == null)
+		PluginManager pluginManager = this.owningPlugin.getServer().getPluginManager();
+		if (pluginManager instanceof SimplePluginManager)
 		{
-			PluginManager pluginManager = this.owningPlugin.getServer().getPluginManager();
-			if (pluginManager instanceof SimplePluginManager)
+			SimplePluginManager simplePluginManager = (SimplePluginManager) pluginManager;
+			try
 			{
-				SimplePluginManager simplePluginManager = (SimplePluginManager) pluginManager;
-				try
-				{
-					Field field = SimplePluginManager.class.getDeclaredField("commandMap");
-					field.setAccessible(true);
-					this.commandMap = (CommandMap) field.get(simplePluginManager);
-				}
-				catch (IllegalAccessException | NoSuchFieldException exception)
-				{
-					throw new RuntimeException("Unable to set up the commandMap", exception);
-				}
+				Field field = SimplePluginManager.class.getDeclaredField("commandMap");
+				field.setAccessible(true);
+				return this.commandMap = (CommandMap) field.get(simplePluginManager);
+			}
+			catch (IllegalAccessException | NoSuchFieldException exception)
+			{
+				throw new RuntimeException("Unable to set up the commandMap", exception);
 			}
 		}
+		return this.commandMap = null;
+	}
+
+	public CommandMap getCommandMap()
+	{
 		return this.commandMap;
 	}
 }
