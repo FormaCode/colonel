@@ -28,18 +28,10 @@ import org.formacode.colonel.Colonel;
 
 import net.md_5.bungee.api.plugin.Plugin;
 
-public final class BungeeColonel implements Colonel<Plugin>
+public final class BungeeColonel extends Colonel<Plugin>
 {
-	private final Plugin owningPlugin;
-
 	public BungeeColonel(Plugin owningPlugin)
 	{
-		this.owningPlugin = owningPlugin;
-	}
-
-	@Override
-	public Plugin getOwningPlugin()
-	{
-		return this.owningPlugin;
+		super(owningPlugin);
 	}
 }

@@ -24,7 +24,17 @@
 
 package org.formacode.colonel;
 
-public interface Colonel<P>
+public abstract class Colonel<P>
 {
-	P getOwningPlugin();
+	protected final P owningPlugin;
+
+	public Colonel(P owningPlugin)
+	{
+		this.owningPlugin = owningPlugin;
+	}
+
+	public P getOwningPlugin()
+	{
+		return this.owningPlugin;
+	}
 }

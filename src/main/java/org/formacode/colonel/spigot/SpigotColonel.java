@@ -38,14 +38,13 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.SimplePluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class SpigotColonel implements Colonel<JavaPlugin>, CommandExecutor, TabCompleter
+public final class SpigotColonel extends Colonel<JavaPlugin> implements CommandExecutor, TabCompleter
 {
-	private final JavaPlugin owningPlugin;
 	private CommandMap commandMap;
 
 	public SpigotColonel(JavaPlugin owningPlugin)
 	{
-		this.owningPlugin = owningPlugin;
+		super(owningPlugin);
 		this.commandMap = this.getCommandMap();
 		if (this.commandMap == null)
 		{
@@ -63,12 +62,6 @@ public final class SpigotColonel implements Colonel<JavaPlugin>, CommandExecutor
 	public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] arguments)
 	{
 		return null;
-	}
-
-	@Override
-	public JavaPlugin getOwningPlugin()
-	{
-		return this.owningPlugin;
 	}
 
 	public CommandMap getCommandMap()
