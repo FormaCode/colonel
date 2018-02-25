@@ -24,10 +24,10 @@
 
 package org.formacode.colonel.spigot;
 
-import org.formacode.colonel.Colonel;
-
 import java.lang.reflect.Field;
 import java.util.List;
+
+import org.formacode.colonel.Colonel;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -40,15 +40,31 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class SpigotColonel extends Colonel<JavaPlugin> implements CommandExecutor, TabCompleter
 {
-	private CommandMap commandMap;
+	private final CommandMap commandMap;
 
 	public SpigotColonel(JavaPlugin owningPlugin)
 	{
 		super(owningPlugin);
 		this.commandMap = this.loadCommandMap();
-		if (this.commandMap == null)
+	}
+
+	private CommandMap loadCommandMap()
+	{
+		PluginManager pluginManager = this.owningPlugin.getServer().getPluginManager();
+		if (!(pluginManager instanceof SimplePluginManager))
 		{
-			throw new NullPointerException("commandMap");
+			throw new IllegalStateException("Plugin manager is not SimplePluginManager");
+		}
+		SimplePluginManager simplePluginManager = (SimplePluginManager) pluginManager;
+		try
+		{
+			Field field = SimplePluginManager.class.getDeclaredField("commandMap");
+			field.setAccessible(true);
+			return (CommandMap) field.get(simplePluginManager);
+		}
+		catch (IllegalAccessException | NoSuchFieldException exception)
+		{
+			throw new RuntimeException("Unable to set up the commandMap", exception);
 		}
 	}
 
@@ -62,30 +78,6 @@ public final class SpigotColonel extends Colonel<JavaPlugin> implements CommandE
 	public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] arguments)
 	{
 		return null;
-	}
-
-	private CommandMap loadCommandMap()
-	{
-		if (this.commandMap != null)
-		{
-			return this.commandMap;
-		}
-		PluginManager pluginManager = this.owningPlugin.getServer().getPluginManager();
-		if (pluginManager instanceof SimplePluginManager)
-		{
-			SimplePluginManager simplePluginManager = (SimplePluginManager) pluginManager;
-			try
-			{
-				Field field = SimplePluginManager.class.getDeclaredField("commandMap");
-				field.setAccessible(true);
-				return this.commandMap = (CommandMap) field.get(simplePluginManager);
-			}
-			catch (IllegalAccessException | NoSuchFieldException exception)
-			{
-				throw new RuntimeException("Unable to set up the commandMap", exception);
-			}
-		}
-		return this.commandMap = null;
 	}
 
 	public CommandMap getCommandMap()
