@@ -24,19 +24,51 @@
 
 package org.formacode.colonel;
 
+import java.lang.reflect.Field;
+
+import org.bukkit.command.CommandMap;
+import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.SimplePluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Colonel
 {
 	private final JavaPlugin owningPlugin;
+	private final CommandMap commandMap;
 
 	public Colonel(JavaPlugin owningPlugin)
 	{
 		this.owningPlugin = owningPlugin;
+		this.commandMap = loadCommandMap();
+	}
+
+	private CommandMap loadCommandMap()
+	{
+		PluginManager pluginManager = this.owningPlugin.getServer().getPluginManager();
+		if (!(pluginManager instanceof SimplePluginManager))
+		{
+			throw new IllegalStateException("PluginManager is not SimplePluginManager");
+		}
+		SimplePluginManager simplePluginManager = (SimplePluginManager) pluginManager;
+		try
+		{
+			Field field = SimplePluginManager.class.getDeclaredField("commandMap");
+			field.setAccessible(true);
+			return (CommandMap) field.get(simplePluginManager);
+		}
+		catch (IllegalAccessException | NoSuchFieldException exception)
+		{
+			throw new RuntimeException("Unable to set up the commandMap", exception);
+		}
 	}
 
 	public JavaPlugin getOwningPlugin()
 	{
 		return this.owningPlugin;
+	}
+
+	public CommandMap getCommandMap()
+	{
+		return this.commandMap;
 	}
 }
