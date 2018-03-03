@@ -22,11 +22,26 @@
  * SOFTWARE.
  */
 
-package org.formacode.colonel.command.sender;
+package org.formacode.colonel.command;
 
-public enum ApplicableCommandSender
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface CommandHeader
 {
-	CONSOLE,
-	PLAYER,
-	BOTH
+	String name();
+
+	String permission() default "";
+
+	String permissionMessage() default "";
+
+	String description() default "";
+
+	String usage() default "";
+
+	String[] aliases() default {};
 }

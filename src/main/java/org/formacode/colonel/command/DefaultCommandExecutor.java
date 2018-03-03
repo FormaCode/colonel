@@ -22,16 +22,22 @@
  * SOFTWARE.
  */
 
-package org.formacode.colonel.bungee;
+package org.formacode.colonel.command;
 
-import org.formacode.colonel.Colonel;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import net.md_5.bungee.api.plugin.Plugin;
+import org.bukkit.command.CommandSender;
 
-public final class BungeeColonel extends Colonel<Plugin>
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface DefaultCommandExecutor
 {
-	public BungeeColonel(Plugin owningPlugin)
-	{
-		super(owningPlugin);
-	}
+	Class<? extends CommandSender> executableBy() default CommandSender.class;
+
+	int minArguments() default -1;
+
+	int maxArguments() default -1;
 }

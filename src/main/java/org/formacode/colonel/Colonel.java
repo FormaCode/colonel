@@ -24,16 +24,18 @@
 
 package org.formacode.colonel;
 
-public abstract class Colonel<P>
-{
-	protected final P owningPlugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
-	public Colonel(P owningPlugin)
+public final class Colonel
+{
+	private final JavaPlugin owningPlugin;
+
+	public Colonel(JavaPlugin owningPlugin)
 	{
 		this.owningPlugin = owningPlugin;
 	}
 
-	public P getOwningPlugin()
+	public JavaPlugin getOwningPlugin()
 	{
 		return this.owningPlugin;
 	}
