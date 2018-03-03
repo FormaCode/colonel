@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package org.formacode.colonel.command;
+package org.formacode.colonel.command.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -33,19 +33,11 @@ import org.bukkit.command.CommandSender;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CommandExecutor
+public @interface DefaultCommandExecutor
 {
-	String name();
-
-	String permission() default "";
-
-	String permissionMessage() default "";
-
 	Class<? extends CommandSender> executableBy() default CommandSender.class;
 
 	int minArguments() default -1;
 
 	int maxArguments() default -1;
-
-	String[] aliases() default {};
 }

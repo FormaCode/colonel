@@ -22,22 +22,40 @@
  * SOFTWARE.
  */
 
-package org.formacode.colonel.command;
+package org.formacode.colonel.util;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Optional;
 
-import org.bukkit.command.CommandSender;
-
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface DefaultCommandExecutor
+public final class ReflectionUtils
 {
-	Class<? extends CommandSender> executableBy() default CommandSender.class;
+	private ReflectionUtils()
+	{
+	}
 
-	int minArguments() default -1;
+	public static <T extends Annotation> Optional<T> getAnnotation(Class<?> annotatedClass, Class<T> annotationClass)
+	{
+		T annotation = annotatedClass.getAnnotation(annotationClass);
+		return Optional.ofNullable(annotation);
+	}
 
-	int maxArguments() default -1;
+	public static <T extends Annotation> Optional<T> getAnnotation(Method annotatedMethod, Class<T> annotationClass)
+	{
+		T annotation = annotatedMethod.getAnnotation(annotationClass);
+		return Optional.ofNullable(annotation);
+	}
+
+	public static void invoke(Method method, Object object, Object... parameters)
+	{
+		try
+		{
+			method.invoke(object, parameters);
+		}
+		catch (IllegalAccessException | InvocationTargetException exception)
+		{
+			exception.printStackTrace();
+		}
+	}
 }

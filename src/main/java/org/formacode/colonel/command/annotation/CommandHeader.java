@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package org.formacode.colonel.command;
+package org.formacode.colonel.command.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -41,7 +41,7 @@ public @interface CommandHeader
 
 	String description() default "";
 
-	String usage() default "";
+	String usageMessage() default "";
 
 	String[] aliases() default {};
 }

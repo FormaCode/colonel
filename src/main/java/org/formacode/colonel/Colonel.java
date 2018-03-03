@@ -25,6 +25,12 @@
 package org.formacode.colonel;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Optional;
+
+import org.formacode.colonel.command.Command;
+import org.formacode.colonel.command.annotation.CommandHeader;
+import org.formacode.colonel.util.ReflectionUtils;
 
 import org.bukkit.command.CommandMap;
 import org.bukkit.plugin.PluginManager;
@@ -40,6 +46,28 @@ public final class Colonel
 	{
 		this.owningPlugin = owningPlugin;
 		this.commandMap = loadCommandMap();
+	}
+
+	public String getPluginName()
+	{
+		return this.owningPlugin.getName().toLowerCase();
+	}
+
+	public void register(Object... executors)
+	{
+		Arrays.stream(executors).forEach(this::register);
+	}
+
+	public void register(Object executor)
+	{
+		Class<?> executorClass = executor.getClass();
+		Optional<CommandHeader> optionalCommandHeader = ReflectionUtils.getAnnotation(executorClass, CommandHeader.class);
+		if (!optionalCommandHeader.isPresent())
+		{
+			throw new RuntimeException("Executor is not annotated with CommandHeader");
+		}
+		CommandHeader commandHeader = optionalCommandHeader.get();
+		Command command = createCommand(executor, commandHeader);
 	}
 
 	private CommandMap loadCommandMap()
@@ -58,7 +86,7 @@ public final class Colonel
 		}
 		catch (IllegalAccessException | NoSuchFieldException exception)
 		{
-			throw new RuntimeException("Unable to set up the commandMap", exception);
+			throw new RuntimeException("Unable to set up the CommandMap", exception);
 		}
 	}
 
