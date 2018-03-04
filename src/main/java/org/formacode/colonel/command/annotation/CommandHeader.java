@@ -37,13 +37,13 @@ public @interface CommandHeader
 
 	String permission() default "";
 
-	String permissionMessage() default "";
+	String permissionMessage() default "&cYou do not have permission: &7{PERMISSION} &cto use this command.";
 
 	String description() default "";
 
 	String usage() default "";
 
-	String usageMessage() default "";
+	String usageMessage() default "&cCorrect usage: &7{USAGE}&c.";
 
 	String[] aliases() default {};
 }

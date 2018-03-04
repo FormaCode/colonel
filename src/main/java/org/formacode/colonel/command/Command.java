@@ -107,34 +107,48 @@ public final class Command extends org.bukkit.command.Command
 				CommandExecutor executor = method.getAnnotation(CommandExecutor.class);
 				String name = executor.name();
 				String[] aliases = executor.aliases();
-				if (!arguments[0].equalsIgnoreCase(name) && Arrays.stream(aliases).anyMatch(alias -> arguments[0].equalsIgnoreCase(alias)))
+				String firstArgument = arguments[0];
+				if (firstArgument.equalsIgnoreCase(name) || Arrays.stream(aliases).anyMatch(firstArgument::equalsIgnoreCase))
 				{
-					return;
-				}
-				String permission = executor.permission();
-				String permissionMessage = executor.permissionMessage();
-				if (!permission.isEmpty() && !sender.hasPermission(permission))
-				{
-					if (!permissionMessage.isEmpty())
+					Class<? extends CommandSender> executableBy = executor.executableBy();
+					String executableByMessage = executor.executableByMessage();
+					if (!executableBy.isAssignableFrom(sender.getClass()))
 					{
-						MessageUtils.sendColoredMessage(sender, permissionMessage.replace("{PERMISSION}", permission));
+						if (!executableByMessage.isEmpty())
+						{
+							MessageUtils.sendColoredMessage(sender, executableByMessage.replace("{EXECUTABLE_BY}", executableBy.getSimpleName()));
+						}
+						return;
 					}
-					return;
-				}
-				String[] subArguments = Arrays.copyOfRange(arguments, 1, arguments.length);
-				int subArgumentsLength = subArguments.length;
-				int minArguments = executor.minArguments();
-				int maxArguments = executor.maxArguments();
-				if ((minArguments == -1 || subArgumentsLength >= minArguments) && (maxArguments == -1 || subArgumentsLength <= maxArguments))
-				{
-					ReflectionUtils.invoke(method, this.executor, sender, label, subArguments);
-					return;
-				}
-				String usageMessage = executor.usageMessage();
-				String usage = executor.usage();
-				if (!usageMessage.isEmpty() && !usage.isEmpty())
-				{
-					MessageUtils.sendColoredMessage(sender, usageMessage.replace("{USAGE}", usage));
+					String permission = executor.permission();
+					String permissionMessage = executor.permissionMessage();
+					if (!permission.isEmpty() && !sender.hasPermission(permission))
+					{
+						if (!permissionMessage.isEmpty())
+						{
+							MessageUtils.sendColoredMessage(sender, permissionMessage.replace("{PERMISSION}", permission));
+						}
+						return;
+					}
+					String[] subArguments = Arrays.copyOfRange(arguments, 1, arguments.length);
+					int subArgumentsLength = subArguments.length;
+					int minArguments = executor.minArguments();
+					int maxArguments = executor.maxArguments();
+					if ((minArguments == -1 || subArgumentsLength >= minArguments) && (maxArguments == -1 || subArgumentsLength <= maxArguments))
+					{
+						ReflectionUtils.invoke(method, this.executor, sender, firstArgument, subArguments);
+						return;
+					}
+					String usageMessage = executor.usageMessage();
+					String usage = executor.usage();
+					if (!usageMessage.isEmpty() && !usage.isEmpty())
+					{
+						usage = usage.replace("{LABEL}", label);
+						usage = usage.replace("{NAME}", firstArgument);
+						usageMessage = usageMessage.replace("{USAGE}", usage);
+						MessageUtils.sendColoredMessage(sender, usageMessage);
+						return;
+					}
 				}
 			}
 		}
@@ -161,7 +175,9 @@ public final class Command extends org.bukkit.command.Command
 		String usage = this.header.usage();
 		if (!usageMessage.isEmpty() && !usage.isEmpty())
 		{
-			MessageUtils.sendColoredMessage(sender, usageMessage.replace("{USAGE}", usage));
+			usage = usage.replace("{LABEL}", label);
+			usageMessage = usageMessage.replace("{USAGE}", usage);
+			MessageUtils.sendColoredMessage(sender, usageMessage);
 		}
 	}
 }

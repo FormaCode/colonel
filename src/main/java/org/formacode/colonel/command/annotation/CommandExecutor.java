@@ -39,7 +39,7 @@ public @interface CommandExecutor
 
 	Class<? extends CommandSender> executableBy() default CommandSender.class;
 
-	String executableByMessage() default "";
+	String executableByMessage() default "&cYou have to be: &7{EXECUTABLE_BY} &cto use this command.";
 
 	int minArguments() default -1;
 
@@ -47,13 +47,13 @@ public @interface CommandExecutor
 
 	String permission() default "";
 
-	String permissionMessage() default "";
+	String permissionMessage() default "&cYou do not have permission: &7{PERMISSION} &cto use this command.";
 
 	String description() default "";
 
 	String usage() default "";
 
-	String usageMessage() default "";
+	String usageMessage() default "&cCorrect usage: &7{USAGE}&c.";
 
 	String[] aliases() default {};
 }
