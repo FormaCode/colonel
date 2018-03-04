@@ -38,7 +38,6 @@ import org.formacode.colonel.util.ReflectionUtils;
 
 import org.bukkit.command.CommandSender;
 
-//TODO: Colored messages
 public final class Command extends org.bukkit.command.Command
 {
 	private final Object executor;
