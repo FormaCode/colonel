@@ -37,6 +37,8 @@ public @interface DefaultCommandExecutor
 {
 	Class<? extends CommandSender> executableBy() default CommandSender.class;
 
+	String executableByMessage() default "";
+
 	int minArguments() default -1;
 
 	int maxArguments() default -1;

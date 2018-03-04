@@ -22,38 +22,26 @@
  * SOFTWARE.
  */
 
-package org.formacode.colonel.command.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package org.formacode.colonel.util;
 
 import org.bukkit.command.CommandSender;
 
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface CommandExecutor
+import net.md_5.bungee.api.ChatColor;
+
+public final class MessageUtils
 {
-	String name();
+	private MessageUtils()
+	{
+	}
 
-	Class<? extends CommandSender> executableBy() default CommandSender.class;
+	public static void sendColoredMessage(CommandSender receiver, String message)
+	{
+		String coloredMessage = colorize(message);
+		receiver.sendMessage(coloredMessage);
+	}
 
-	String executableByMessage() default "";
-
-	int minArguments() default -1;
-
-	int maxArguments() default -1;
-
-	String permission() default "";
-
-	String permissionMessage() default "";
-
-	String description() default "";
-
-	String usage() default "";
-
-	String usageMessage() default "";
-
-	String[] aliases() default {};
+	public static String colorize(String text)
+	{
+		return ChatColor.translateAlternateColorCodes('&', text);
+	}
 }

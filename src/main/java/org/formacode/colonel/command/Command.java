@@ -33,10 +33,12 @@ import java.util.Optional;
 import org.formacode.colonel.command.annotation.CommandExecutor;
 import org.formacode.colonel.command.annotation.CommandHeader;
 import org.formacode.colonel.command.annotation.DefaultCommandExecutor;
+import org.formacode.colonel.util.MessageUtils;
 import org.formacode.colonel.util.ReflectionUtils;
 
 import org.bukkit.command.CommandSender;
 
+//TODO: Colored messages
 public final class Command extends org.bukkit.command.Command
 {
 	private final Object executor;
@@ -72,7 +74,7 @@ public final class Command extends org.bukkit.command.Command
 			}
 			if (this.defaultExecutor != null)
 			{
-				throw new IllegalStateException("Executor cannot have more than one DefaultCommandaExecutor");
+				throw new IllegalStateException("Executor cannot have more than one DefaultCommandExecutor");
 			}
 			this.defaultExecutor = method;
 		}
@@ -87,24 +89,80 @@ public final class Command extends org.bukkit.command.Command
 
 	private void run(CommandSender sender, String label, String[] arguments)
 	{
-		String permission = this.header.permission();
-		if (!permission.isEmpty() && !sender.hasPermission(permission))
 		{
-			String permissionMessage = this.header.permissionMessage();
-			if (!permissionMessage.isEmpty())
+			String permission = this.header.permission();
+			if (!permission.isEmpty() && !sender.hasPermission(permission))
 			{
-				sender.sendMessage(permissionMessage);
+				String permissionMessage = this.header.permissionMessage();
+				if (!permissionMessage.isEmpty())
+				{
+					MessageUtils.sendColoredMessage(sender, permissionMessage.replace("{PERMISSION}", permission));
+				}
+				return;
 			}
-			return;
+		}
+		if (arguments.length > 0)
+		{
+			for (Method method : this.executors)
+			{
+				CommandExecutor executor = method.getAnnotation(CommandExecutor.class);
+				String name = executor.name();
+				String[] aliases = executor.aliases();
+				if (!arguments[0].equalsIgnoreCase(name) && Arrays.stream(aliases).anyMatch(alias -> arguments[0].equalsIgnoreCase(alias)))
+				{
+					return;
+				}
+				String permission = executor.permission();
+				String permissionMessage = executor.permissionMessage();
+				if (!permission.isEmpty() && !sender.hasPermission(permission))
+				{
+					if (!permissionMessage.isEmpty())
+					{
+						MessageUtils.sendColoredMessage(sender, permissionMessage.replace("{PERMISSION}", permission));
+					}
+					return;
+				}
+				String[] subArguments = Arrays.copyOfRange(arguments, 1, arguments.length);
+				int subArgumentsLength = subArguments.length;
+				int minArguments = executor.minArguments();
+				int maxArguments = executor.maxArguments();
+				if ((minArguments == -1 || subArgumentsLength >= minArguments) && (maxArguments == -1 || subArgumentsLength <= maxArguments))
+				{
+					ReflectionUtils.invoke(method, this.executor, sender, label, subArguments);
+					return;
+				}
+				String usageMessage = executor.usageMessage();
+				String usage = executor.usage();
+				if (!usageMessage.isEmpty() && !usage.isEmpty())
+				{
+					MessageUtils.sendColoredMessage(sender, usageMessage.replace("{USAGE}", usage));
+				}
+			}
 		}
 		if (this.defaultExecutor != null)
 		{
+			DefaultCommandExecutor defaultExecutor = this.defaultExecutor.getAnnotation(DefaultCommandExecutor.class);
+			Class<? extends CommandSender> executableBy = defaultExecutor.executableBy();
+			String executableByMessage = defaultExecutor.executableByMessage();
+			if (!executableBy.isAssignableFrom(sender.getClass()) && !executableByMessage.isEmpty())
+			{
+				MessageUtils.sendColoredMessage(sender, executableByMessage.replace("{EXECUTABLE_BY}", executableBy.getSimpleName()));
+				return;
+			}
+			int argumentsLength = arguments.length;
+			int minArguments = defaultExecutor.minArguments();
+			int maxArguments = defaultExecutor.maxArguments();
+			if ((minArguments == -1 || argumentsLength >= minArguments) && (maxArguments == -1 || argumentsLength <= maxArguments))
+			{
+				ReflectionUtils.invoke(this.defaultExecutor, this.executor, sender, label, arguments);
+				return;
+			}
 		}
 		String usageMessage = this.header.usageMessage();
 		String usage = this.header.usage();
 		if (!usageMessage.isEmpty() && !usage.isEmpty())
 		{
-			sender.sendMessage(usageMessage.replace("{USAGE}", usage));
+			MessageUtils.sendColoredMessage(sender, usageMessage.replace("{USAGE}", usage));
 		}
 	}
 }
