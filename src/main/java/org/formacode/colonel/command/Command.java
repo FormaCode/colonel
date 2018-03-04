@@ -24,14 +24,87 @@
 
 package org.formacode.colonel.command;
 
-import java.util.List;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Optional;
+
+import org.formacode.colonel.command.annotation.CommandExecutor;
+import org.formacode.colonel.command.annotation.CommandHeader;
+import org.formacode.colonel.command.annotation.DefaultCommandExecutor;
+import org.formacode.colonel.util.ReflectionUtils;
+
+import org.bukkit.command.CommandSender;
 
 public final class Command extends org.bukkit.command.Command
 {
-	private final Object commandExecutor;
+	private final Object executor;
+	private final CommandHeader header;
+	private Collection<Method> executors;
+	private Method defaultExecutor;
 
-	public Command(Object commandExecutor, String name, String description, String usageMessage, String... aliases)
+	public Command(Object executor, CommandHeader header)
 	{
-		super(name, description, usageMessage, aliases);
+		super(header.name(), header.description(), header.usage(), Arrays.asList(header.aliases()));
+		this.executor = executor;
+		this.header = header;
+		registerExecutors();
+	}
+
+	private void registerExecutors()
+	{
+		Class<?> executorClass = this.executor.getClass();
+		Method[] methods = executorClass.getMethods();
+		this.executors = new ArrayList<>(methods.length);
+		for (Method method : methods)
+		{
+			Optional<CommandExecutor> executorOptional = ReflectionUtils.getAnnotation(method, CommandExecutor.class);
+			if (executorOptional.isPresent())
+			{
+				this.executors.add(method);
+				continue;
+			}
+			Optional<DefaultCommandExecutor> defaultExecutorOptional = ReflectionUtils.getAnnotation(method, DefaultCommandExecutor.class);
+			if (!defaultExecutorOptional.isPresent())
+			{
+				continue;
+			}
+			if (this.defaultExecutor != null)
+			{
+				throw new IllegalStateException("Executor cannot have more than one DefaultCommandaExecutor");
+			}
+			this.defaultExecutor = method;
+		}
+	}
+
+	@Override
+	public boolean execute(CommandSender sender, String label, String[] arguments)
+	{
+		run(sender, label, arguments);
+		return false;
+	}
+
+	private void run(CommandSender sender, String label, String[] arguments)
+	{
+		String permission = this.header.permission();
+		if (!permission.isEmpty() && !sender.hasPermission(permission))
+		{
+			String permissionMessage = this.header.permissionMessage();
+			if (!permissionMessage.isEmpty())
+			{
+				sender.sendMessage(permissionMessage);
+			}
+			return;
+		}
+		if (this.defaultExecutor != null)
+		{
+		}
+		String usageMessage = this.header.usageMessage();
+		String usage = this.header.usage();
+		if (!usageMessage.isEmpty() && !usage.isEmpty())
+		{
+			sender.sendMessage(usageMessage.replace("{USAGE}", usage));
+		}
 	}
 }

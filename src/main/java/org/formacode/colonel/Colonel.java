@@ -61,13 +61,14 @@ public final class Colonel
 	public void register(Object executor)
 	{
 		Class<?> executorClass = executor.getClass();
-		Optional<CommandHeader> optionalCommandHeader = ReflectionUtils.getAnnotation(executorClass, CommandHeader.class);
-		if (!optionalCommandHeader.isPresent())
+		Optional<CommandHeader> commandHeaderOptional = ReflectionUtils.getAnnotation(executorClass, CommandHeader.class);
+		if (!commandHeaderOptional.isPresent())
 		{
 			throw new RuntimeException("Executor is not annotated with CommandHeader");
 		}
-		CommandHeader commandHeader = optionalCommandHeader.get();
-		Command command = createCommand(executor, commandHeader);
+		CommandHeader commandHeader = commandHeaderOptional.get();
+		Command command = new Command(executor, commandHeader);
+		this.commandMap.register(this.getPluginName(), command);
 	}
 
 	private CommandMap loadCommandMap()

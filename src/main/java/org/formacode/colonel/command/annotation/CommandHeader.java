@@ -41,6 +41,8 @@ public @interface CommandHeader
 
 	String description() default "";
 
+	String usage() default "";
+
 	String usageMessage() default "";
 
 	String[] aliases() default {};
